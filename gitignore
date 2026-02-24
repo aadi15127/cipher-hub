@@ -1,0 +1,10 @@
+# IDE Folders
+.vscode/
+.idea/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*

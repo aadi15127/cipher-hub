@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cipher Hub | Ultimate Security Suite</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/style.css">
+    
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+</head>
+<body>
+
+    <div class="modal-overlay" id="securityPopup">
+        <div class="security-modal">
+            <h1>🛡️ Welcome to Cipher Hub</h1>
+            <p class="subtitle">Your multi-modal security dashboard is ready. Explore different ways to protect your digital identity.</p>
+            <button class="btn" onclick="closeSecurityPopup()">Access Dashboard</button>
+        </div>
+    </div>
+
+    <div class="history-trigger" onclick="toggleHistory()">📜 ACTIVITY LOGS</div>
+
+    <div class="history-panel" id="historyPanel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3 style="margin:0;">Security History</h3>
+            <button onclick="toggleHistory()" style="background:none; border:none; cursor:pointer; font-size:1.2rem;">✕</button>
+        </div>
+        <div id="historyList"></div>
+        <button class="btn" style="background:var(--danger); margin-top:20px;" onclick="clearHistory()">Wipe All Logs</button>
+    </div>
+
+    <div class="nav-container">
+        <button class="nav-btn active" onclick="switchTab('passView', this)">🔑 Password</button>
+        <button class="nav-btn" onclick="switchTab('patternView', this)">🎨 Pattern</button>
+        <button class="nav-btn" onclick="switchTab('phraseView', this)">📝 Phrase</button>
+        <button class="nav-btn" onclick="switchTab('emojiView', this)">😀 Emoji</button>
+        <button class="nav-btn" onclick="switchTab('totpView', this)">⏱️ TOTP</button>
+        <button class="nav-btn" onclick="switchTab('rhythmView', this)">🥁 Rhythm</button>
+        <button class="nav-btn" onclick="switchTab('hotspotView', this)">🎯 Hotspot</button>
+    </div>
+
+    <div id="passView" class="app-view active">
+        <div class="app-container">
+            <div class="glass-card full-span">
+                <h1>Password Sentinel</h1>
+                <p class="subtitle">Real-time entropy and keyboard distribution analysis.</p>
+                <input type="text" id="userInput" placeholder="Enter password to analyze..." autocomplete="off">
+            </div>
+            <div class="glass-card">
+                <span class="label">Strength Score</span>
+                <div class="circle" id="scoreCirc">0%</div>
+                <span class="label">Time to Crack</span>
+                <p id="crackTime" style="text-align:center; font-weight:700; color:var(--danger);">Instantly</p>
+                <span class="label">Keyboard Heatmap</span>
+                <div class="kb-grid" id="kbGrid"></div>
+                <span class="label">Typing Cadence</span>
+                <p id="typingSpeed" style="text-align:center; font-weight:700; color:var(--primary);">0 CPM</p>
+            </div>
+            <div class="glass-card">
+                <span class="label">Cloud Backup</span>
+                <input type="email" id="userEmail" placeholder="Backup email">
+                <textarea id="userNote" placeholder="Context (e.g., Bank Login)"></textarea>
+                <button class="btn" onclick="savePassword()">📩 Secure Backup</button>
+                <div style="margin-top:15px; border-top:1px solid #eee; pt:10px;">
+                    <span class="label">Better Alternative</span>
+                    <p id="betterPass" style="font-weight:700; color:var(--primary); margin:5px 0;">---</p>
+                    <button id="useThisBtn" class="btn" style="display:none; padding:8px; font-size:0.7rem;" onclick="applySuggestion()">Apply This</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="patternView" class="app-view">
+        <div class="app-container">
+            <div class="glass-card full-span">
+                <h1>Pattern Sentinel</h1>
+                <p class="subtitle">Visualize spatial security gestures.</p>
+                <div class="pattern-holder" id="grid"></div>
+                <p id="pattern-path" style="text-align:center; font-weight:700; color:var(--primary);">---</p>
+            </div>
+            <div class="glass-card">
+                <span class="label">Complexity Meter</span>
+                <div class="meter-bg"><div id="meterFill" class="meter-fill"></div></div>
+                <p id="strength-label" style="text-align:center; font-weight:700;">Weak</p>
+                <button class="btn" style="background:#f1f5f9; color:var(--dark);" onclick="resetPattern()">Reset Grid</button>
+            </div>
+            <div class="glass-card">
+                <span class="label">Backup Gesture</span>
+                <input type="email" id="patternEmail" placeholder="Backup email">
+                <button class="btn" onclick="savePattern()">📩 Save Pattern</button>
+                <div style="margin-top:15px;">
+                    <span class="label">Pro Suggestion</span>
+                    <p id="betterPattern" style="font-weight:700; color:var(--primary); margin:5px 0;">---</p>
+                    <button id="usePatternBtn" class="btn" style="display:none; padding:8px; font-size:0.7rem;" onclick="applyPatternSuggestion()">Apply</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="phraseView" class="app-view">
+        <div class="glass-card" style="width:100%;">
+            <h1>Passphrase Engine</h1>
+            <p class="subtitle">Longer is stronger. Use multiple random words.</p>
+            <textarea id="phraseInput" placeholder="Enter a long sentence or passphrase..."></textarea>
+            <p id="phraseStats" style="text-align:center; font-weight:700; color:var(--primary);">Words: 0</p>
+            <input type="email" id="phraseEmail" placeholder="Backup email" style="margin-top:15px;">
+            <button class="btn" onclick="savePhrase()">📩 Save Phrase</button>
+        </div>
+    </div>
+
+    <div id="emojiView" class="app-view">
+        <div class="glass-card" style="width:100%;">
+            <h1>Emoji Keys</h1>
+            <div id="emojiDisplay" style="font-size:2rem; text-align:center; min-height:50px; border-bottom:2px solid #eee; margin-bottom:15px;"></div>
+            <div class="emoji-grid">
+                <div class="emoji-item" onclick="addEmoji('🛡️')">🛡️</div><div class="emoji-item" onclick="addEmoji('🔑')">🔑</div>
+                <div class="emoji-item" onclick="addEmoji('⚡')">⚡</div><div class="emoji-item" onclick="addEmoji('🔥')">🔥</div>
+                <div class="emoji-item" onclick="addEmoji('🌈')">🌈</div><div class="emoji-item" onclick="addEmoji('🍀')">🍀</div>
+                <div class="emoji-item" onclick="addEmoji('💎')">💎</div><div class="emoji-item" onclick="addEmoji('🤖')">🤖</div>
+            </div>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button class="btn" style="background:#f1f5f9; color:var(--dark);" onclick="clearEmoji()">Clear</button>
+                <input type="email" id="emojiEmail" placeholder="Backup email">
+                <button class="btn" onclick="saveEmoji()">📩 Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="totpView" class="app-view">
+        <div class="glass-card" style="width:100%; text-align:center;">
+            <h1>Auth Vault (TOTP)</h1>
+            <p class="subtitle">Temporary 6-digit codes (Refreshes every 30s)</p>
+            <div id="totpCode" style="font-size:3rem; font-weight:800; letter-spacing:8px; color:var(--primary); margin:20px 0;">------</div>
+            <div class="meter-bg" style="width:200px; margin:0 auto;"><div id="totpFill" class="meter-fill" style="background:var(--success)"></div></div>
+        </div>
+    </div>
+
+    <div id="rhythmView" class="app-view">
+        <div class="glass-card" style="width:100%; text-align:center;">
+            <h1>Rhythm Sentinel</h1>
+            <p class="subtitle">Tap your unique rhythm on the pad below.</p>
+            <div class="rhythm-btn" id="rhythmPad" onclick="recordRhythm()"></div>
+            <p id="rhythmStatus" style="font-weight:700;">Beats Recorded: 0</p>
+            <input type="email" id="rhythmEmail" placeholder="Backup email" style="margin-top:15px;">
+            <button class="btn" onclick="saveRhythm()">📩 Save Rhythm Signature</button>
+        </div>
+    </div>
+
+    <div id="hotspotView" class="app-view">
+        <div class="glass-card" style="width:100%;">
+            <h1>Image Hotspot</h1>
+            <p class="subtitle">Upload an image and click 3 secret spots.</p>
+            <input type="file" id="imgUpload" accept="image/*">
+            <div class="image-preview-box">
+                <canvas id="hotspot-canvas"></canvas>
+            </div>
+            <p id="hotspotPoints" style="text-align:center; font-weight:700;">Points: 0/3</p>
+            <input type="email" id="hotspotEmail" placeholder="Backup email">
+            <button class="btn" onclick="saveHotspot()">📩 Save Coordinates</button>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
