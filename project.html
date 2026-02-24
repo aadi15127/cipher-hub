@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cipher Hub | Ultimate Security Suite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;700&display=swap" rel="stylesheet">
+    
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+       (function(){
+          emailjs.init("F6_n12Iry0aRYGpvx");
+       })();
+    </script>
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1e293b;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff);
+            background-size: 400% 400%;
+            animation: rainbowFlow 15s ease infinite;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        @keyframes rainbowFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- MODAL & NAV --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 2000; opacity: 0; visibility: hidden; transition: 0.4s;
+        }
+        .modal-overlay.show { opacity: 1; visibility: visible; }
+        .security-modal {
+            background: white; width: 90%; max-width: 450px; border-radius: 25px;
+            padding: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            transform: scale(0.8); transition: 0.4s;
+        }
+        .modal-overlay.show .security-modal { transform: scale(1); }
+        
+        .nav-container {
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 50px;
+            display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .nav-btn {
+            padding: 10px 18px; border: none; border-radius: 40px;
+            cursor: pointer; font-weight: 700; transition: 0.3s;
+            background: transparent; color: var(--dark); font-size: 0.8rem;
+        }
+        .nav-btn.active { background: var(--primary); color: white; }
+
+        /* --- LAYOUT --- */
+        .app-view { display: none; width: 100%; max-width: 900px; animation: fadeIn 0.5s ease; }
+        .app-view.active { display: grid; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .app-container { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px; width: 100%; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(10px);
+            border-radius: 25px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        .full-span { grid-column: span 2; }
+        .subtitle { font-size: 0.8rem; color: #64748b; text-align: center; margin-bottom: 15px; font-weight: 500; }
+        
+        h1 { margin: 0; font-size: 1.8rem; color: var(--dark); text-align: center; }
+        .label { font-size: 0.65rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 8px; display: block; }
+        
+        input, textarea {
+            width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #ddd;
+            font-size: 1rem; outline: none; box-sizing: border-box; font-family: inherit;
+        }
+        .btn {
+            width: 100%; background: var(--dark); color: white; border: none;
+            padding: 15px; border-radius: 12px; font-weight: 700; cursor: pointer;
+            margin-top: 10px; transition: 0.3s;
+        }
+        .btn:hover { background: var(--primary); transform: translateY(-2px); }
+
+        /* --- COMPONENTS --- */
+        .circle { width: 80px; height: 80px; border-radius: 50%; border: 6px solid #f1f5f9; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: 700; transition: 0.5s; }
+        .dot { height: 8px; background: #e2e8f0; border-radius: 3px; }
+        .dot.on { background: var(--primary); box-shadow: 0 0 8px var(--primary); }
+        .pattern-holder { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 10px; margin: 10px auto; width: 180px; }
+        .dot-node { width: 20px; height: 20px; background: #cbd5e1; border-radius: 50%; cursor: pointer; transition: 0.3s; }
+        .dot-node.active { background: var(--primary); transform: scale(1.3); box-shadow: 0 0 10px var(--primary); }
+        .meter-bg { height: 8px; background: #e2e8f0; border-radius: 10px; overflow: hidden; margin: 10px 0; }
+        .meter-fill { height: 100%; width: 0%; transition: 0.4s; background: var(--danger); }
+
+        /* Emoji/Rhythm/Hotspot */
+        .emoji-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+        .emoji-item { font-size: 1.5rem; background: #f1f5f9; padding: 10px; border-radius: 10px; cursor: pointer; text-align: center; }
+        .rhythm-btn { height: 80px; width: 80px; border-radius: 50%; border: 6px solid var(--primary); margin: 20px auto; cursor: pointer; transition: 0.2s; }
+        .image-preview-box { position: relative; width: 100%; border-radius: 15px; overflow: hidden; cursor: crosshair; margin-top: 10px; border: 2px dashed #cbd5e1; }
+        #hotspot-canvas { width: 100%; display: block; }
+
+        /* --- HISTORY STYLES --- */
+        .history-trigger { position: fixed; right: 20px; top: 50%; transform: translateY(-50%); background: var(--dark); color: white; padding: 15px; border-radius: 50px; cursor: pointer; z-index: 100; font-weight: 700; writing-mode: vertical-rl; }
+        .history-panel { position: fixed; right: -400px; top: 0; width: 340px; height: 100vh; background: white; box-shadow: -10px 0 30px rgba(0,0,0,0.1); transition: 0.4s; z-index: 101; padding: 25px; overflow-y: auto; }
+        .history-panel.open { right: 0; }
+
+        .history-item {
+            background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 15px;
+            border-left: 5px solid var(--primary); font-size: 0.8rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .history-item .type-tag {
+            display: inline-block; padding: 2px 8px; background: var(--dark); color: white;
+            border-radius: 4px; font-size: 0.65rem; margin-bottom: 8px; text-transform: uppercase;
+        }
+        .history-item .timestamp { color: #94a3b8; float: right; font-size: 0.7rem; }
+        .history-item .content-box {
+            background: white; padding: 8px; border-radius: 6px; margin-top: 8px;
+            border: 1px solid #e2e8f0; word-break: break-all; font-family: monospace;
+        }
+
+        @media (max-width: 750px) { .app-container { grid-template-columns: 1fr; } .full-span { grid-column: span 1; } }
+    </style>
+</head>
+<body>
+
+<div class="modal-overlay" id="securityPopup">
+    <div class="security-modal">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <div style="font-size: 3rem;">🛡️</div>
+            <h2 style="margin: 10px 0; color: var(--dark);">Security Briefing</h2>
+        </div>
+        <p style="text-align:center;">Welcome to the next generation of digital protection. Choose your sentinel below.</p>
+        <button class="btn" style="background: var(--primary);" onclick="closeSecurityPopup()">Initialize Systems</button>
+    </div>
+</div>
+
+<div class="nav-container">
+    <button class="nav-btn active" onclick="switchTab('passView', this)">🔑 Pass</button>
+    <button class="nav-btn" onclick="switchTab('patternView', this)">🎨 Pattern</button>
+    <button class="nav-btn" onclick="switchTab('phraseView', this)">📖 Phrase</button>
+    <button class="nav-btn" onclick="switchTab('emojiView', this)">🥳 Emoji</button>
+    <button class="nav-btn" onclick="switchTab('totpView', this)">⏰ TOTP</button>
+    <button class="nav-btn" onclick="switchTab('rhythmView', this)">🥁 Rhythm</button>
+    <button class="nav-btn" onclick="switchTab('hotspotView', this)">📍 Hotspot</button>
+</div>
+
+<div class="history-trigger" onclick="toggleHistory()">📜 VIEW LOGS</div>
+<div class="history-panel" id="historyPanel">
+    <span onclick="toggleHistory()" style="cursor:pointer; color:var(--danger); font-weight:800; float:right;">✕</span>
+    <h2>Security Logs</h2>
+    <div id="historyList"></div>
+    <button class="btn" style="background: var(--danger);" onclick="clearHistory()">Wipe Logs</button>
+</div>
+
+<div id="passView" class="app-view active">
+    <div class="app-container">
+        <div class="glass-card full-span">
+            <h1>Cipher Sentinel</h1>
+            <p class="subtitle">Helps users create complex, crack-resistant alpha-numeric passwords using real-time analysis.</p>
+            <input type="text" id="userInput" style="text-align: center; font-weight: 700;" placeholder="Type password..." autocomplete="off">
+        </div>
+        <div class="glass-card">
+            <span class="label">Strength</span>
+            <div class="circle" id="scoreCirc">0%</div>
+            <span class="label">Estimated Crack Time</span>
+            <div id="crackTime" style="font-weight: 700; color: var(--danger); text-align: center; font-size: 1.1rem; margin-bottom: 15px;">Instantly</div>
+            <span class="label">Keyboard Usage</span>
+            <div style="display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; margin-bottom: 15px;" id="kbGrid"></div>
+            <span class="label">Typing Speed</span>
+            <div id="typingSpeed" style="font-weight: 700; color: var(--primary); text-align: center; font-size: 1.1rem;">0 CPM</div>
+        </div>
+        <div class="glass-card">
+            <span class="label">Save Backup</span>
+            <input type="email" id="userEmail" placeholder="Your email" style="margin-bottom: 10px;">
+            <textarea id="userNote" placeholder="Notes (e.g. Google Acc)" rows="2" style="resize: none;"></textarea>
+            <button class="btn" onclick="savePassword()">📩 Log Entry</button>
+        </div>
+        <div class="glass-card full-span">
+            <span class="label">Better Alternative</span>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <span id="betterPass" style="font-weight: 700; color: var(--primary);">Type something...</span>
+                <button id="useThisBtn" class="btn" style="width:auto; margin:0; padding: 8px 15px; display:none;" onclick="applySuggestion()">Use This</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="patternView" class="app-view">
+    <div class="app-container">
+        <div class="glass-card full-span">
+            <h1>Pattern Sentinel</h1>
+            <p class="subtitle">Enables visual learners to secure data using spatial memory patterns instead of text.</p>
+            <div class="pattern-holder" id="grid"></div>
+            <div class="meter-bg"><div class="meter-fill" id="meterFill"></div></div>
+            <div id="strength-label" style="font-size: 0.8rem; font-weight:700; text-align:center;">Waiting...</div>
+        </div>
+        <div class="glass-card">
+            <span class="label">Current Path</span>
+            <div id="pattern-path" style="font-weight:700; min-height: 25px;">---</div>
+            <button class="btn" style="background:#f1f5f9; color:#475569; font-size:0.8rem;" onclick="resetPattern()">Clear</button>
+        </div>
+        <div class="glass-card">
+            <span class="label">Email Backup</span>
+            <input type="email" id="patternEmail" placeholder="Enter email">
+            <button class="btn" onclick="savePattern()">📩 Save Pattern</button>
+        </div>
+        <div class="glass-card full-span">
+            <span class="label">Smart Pattern Suggestion</span>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <span id="betterPattern" style="font-weight: 700; color: var(--primary);">Draw to see suggestion...</span>
+                <button id="usePatternBtn" class="btn" style="width:auto; margin:0; padding: 8px 15px; display:none;" onclick="applyPatternSuggestion()">Use This</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="phraseView" class="app-view">
+    <div class="app-container">
+        <div class="glass-card full-span">
+            <h1>Passphrase Sentinel</h1>
+            <p class="subtitle">Uses long, easy-to-remember sentences that are mathematically harder for AI to crack.</p>
+            <textarea id="phraseInput" placeholder="Enter a long secret story..." rows="3"></textarea>
+            <div id="phraseStats" style="font-size: 0.8rem; font-weight: 700; margin-top: 10px; text-align: center;">Words: 0</div>
+        </div>
+        <div class="glass-card">
+            <span class="label">Backup</span>
+            <input type="email" id="phraseEmail" placeholder="Email">
+            <button class="btn" onclick="savePhrase()">📩 Save Phrase</button>
+        </div>
+    </div>
+</div>
+
+<div id="emojiView" class="app-view">
+    <div class="app-container">
+        <div class="glass-card full-span">
+            <h1>Emoji Sentinel</h1>
+            <p class="subtitle">Leverages a massive visual character pool to prevent "shoulder surfing" and keyboard logging.</p>
+            <div id="emojiDisplay" style="text-align:center; font-size:2rem; min-height:50px; margin:10px;"></div>
+            <div class="emoji-grid">
+                <div class="emoji-item" onclick="addEmoji('🚀')">🚀</div><div class="emoji-item" onclick="addEmoji('🍕')">🍕</div>
+                <div class="emoji-item" onclick="addEmoji('🐉')">🐉</div><div class="emoji-item" onclick="addEmoji('💎')">💎</div>
+                <div class="emoji-item" onclick="addEmoji('👻')">👻</div><div class="emoji-item" onclick="addEmoji('🌈')">🌈</div>
+                <div class="emoji-item" onclick="addEmoji('🎸')">🎸</div><div class="emoji-item" onclick="addEmoji('🍦')">🍦</div>
+            </div>
+        </div>
+        <div class="glass-card">
+            <button class="btn" style="background:#f1f5f9; color:var(--dark);" onclick="clearEmoji()">Reset</button>
+            <input type="email" id="emojiEmail" placeholder="Email">
+            <button class="btn" onclick="saveEmoji()">📩 Save Key</button>
+        </div>
+    </div>
+</div>
+
+<div id="totpView" class="app-view">
+    <div class="app-container">
+        <div class="glass-card full-span">
+            <h1>Auth Vault (TOTP)</h1>
+            <p class="subtitle">Provides temporary 30-second codes to add a second layer of defense against account theft.</p>
+            <div id="totpCode" style="font-size: 3.5rem; text-align: center; font-weight: 800; color: var(--primary); margin: 20px 0;">000000</div>
+            <div class="meter-bg"><div class="meter-fill" id="totpFill" style="background:var(--primary);"></div></div>
+        </div>
+    </div>
+</div>
+
+<div id="rhythmView" class="app-view">
+    <div class="app-container">
+        <div class="glass-card full-span">
+            <h1>Rhythm Sentinel</h1>
+            <p class="subtitle">Protects users by verifying their unique typing cadence—a secret that can't be seen or written down.</p>
+            <div class="rhythm-btn" id="rhythmPad" onmousedown="recordRhythm()"></div>
+            <p id="rhythmStatus" style="text-align:center; font-weight:700;">Tap your secret rhythm...</p>
+        </div>
+        <div class="glass-card">
+            <button class="btn" onclick="rhythmTimes=[]">Reset</button>
+            <input type="email" id="rhythmEmail" placeholder="Email">
+            <button class="btn" onclick="saveRhythm()">📩 Save Rhythm</button>
+        </div>
+    </div>
+</div>
+
+<div id="hotspotView" class="app-view">
+    <div class="app-container">
+        <div class="glass-card full-span">
+            <h1>Hotspot Sentinel</h1>
+            <p class="subtitle">Hides authentication points inside personal images, making the password invisible to everyone else.</p>
+            <input type="file" id="imgUpload" accept="image/*">
+            <div class="image-preview-box"><canvas id="hotspot-canvas"></canvas></div>
+            <p id="hotspotPoints" style="text-align:center;">Points: 0/3</p>
+        </div>
+        <div class="glass-card">
+            <input type="email" id="hotspotEmail" placeholder="Email">
+            <button class="btn" onclick="saveHotspot()">📩 Save Spots</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- UTILS ---
+    function validateEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+    function closeSecurityPopup() { document.getElementById('securityPopup').classList.remove('show'); }
+    function switchTab(id, btn) {
+        document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        btn.classList.add('active');
+    }
+
+    // --- PASSWORD LOGIC ---
+    const input = document.getElementById('userInput');
+    const scoreCirc = document.getElementById('scoreCirc');
+    const crackTimeDisplay = document.getElementById('crackTime');
+    const kbGrid = document.getElementById('kbGrid');
+    const typingSpeedDisplay = document.getElementById('typingSpeed');
+    const betterPass = document.getElementById('betterPass');
+    const useThisBtn = document.getElementById('useThisBtn');
+    
+    let startTime;
+    "qwertyuiopasdfghjklzxcvbnm1234567890".split('').forEach(k => {
+        const d = document.createElement('div'); d.className = 'dot'; d.id = `k-${k}`;
+        kbGrid.appendChild(d);
+    });
+
+    input.addEventListener('input', () => {
+        let val = input.value;
+        if(val.length === 1) startTime = new Date();
+        if(val.length > 1 && startTime) {
+            const timeDiff = (new Date() - startTime) / 1000 / 60;
+            typingSpeedDisplay.innerText = Math.round(val.length / timeDiff) + " CPM";
+        }
+
+        let score = 0;
+        if (val.length >= 8) score += 20;
+        if (/[A-Z]/.test(val)) score += 20;
+        if (/[0-9]/.test(val)) score += 20;
+        if (/[^A-Za-z0-9]/.test(val)) score += 20;
+        if (val.length >= 12) score += 20;
+
+        scoreCirc.innerText = score + "%";
+        scoreCirc.style.borderColor = score < 40 ? 'var(--danger)' : (score < 80 ? 'var(--warning)' : 'var(--success)');
+        crackTimeDisplay.innerText = val.length < 5 ? "Instantly" : (val.length < 9 ? "Minutes" : "Centuries 🛡️");
+        
+        document.querySelectorAll('.dot').forEach(d => d.classList.remove('on'));
+        val.toLowerCase().split('').forEach(char => {
+            const el = document.getElementById(`k-${char}`); if(el) el.classList.add('on');
+        });
+
+        if(val.length > 0) {
+            betterPass.innerText = val + "@" + (val.length * 7);
+            useThisBtn.style.display = "block";
+        }
+    });
+    function applySuggestion() { input.value = betterPass.innerText; input.dispatchEvent(new Event('input')); }
+
+    // --- PATTERN LOGIC ---
+    let pattern = [];
+    for(let i=1; i<=9; i++) {
+        const dot = document.createElement('div'); dot.className = 'dot-node';
+        dot.onclick = () => {
+            if(!pattern.includes(i.toString())) {
+                pattern.push(i.toString()); dot.classList.add('active');
+                updatePatternAnalysis();
+            }
+        };
+        document.getElementById('grid').appendChild(dot);
+    }
+    function updatePatternAnalysis() {
+        document.getElementById('pattern-path').innerText = pattern.join(' → ');
+        let score = (pattern.length / 9) * 100;
+        document.getElementById('meterFill').style.width = score + "%";
+        document.getElementById('strength-label').innerText = score < 40 ? "Weak" : (score < 70 ? "Medium" : "Strong");
+        if(pattern.length > 0) {
+            document.getElementById('betterPattern').innerText = "1 → 5 → 9 → 6 → 3";
+            document.getElementById('usePatternBtn').style.display = "block";
+        }
+    }
+    function applyPatternSuggestion() {
+        resetPattern();
+        ["1","5","9","6","3"].forEach(idx => {
+            pattern.push(idx); document.querySelector(`#grid div:nth-child(${idx})`).classList.add('active');
+        });
+        updatePatternAnalysis();
+    }
+    function resetPattern() { pattern = []; document.querySelectorAll('.dot-node').forEach(d => d.classList.remove('active')); updatePatternAnalysis(); }
+
+    // --- PASSPHRASE ---
+    document.getElementById('phraseInput').addEventListener('input', function() {
+        const count = this.value.trim().split(/\s+/).filter(w => w.length > 0).length;
+        document.getElementById('phraseStats').innerText = `Words: ${count} | ${count > 4 ? 'Secure' : 'Needs more words'}`;
+    });
+
+    // --- EMOJI ---
+    let emojiSeq = [];
+    function addEmoji(e) { emojiSeq.push(e); document.getElementById('emojiDisplay').innerText = emojiSeq.join(''); }
+    function clearEmoji() { emojiSeq = []; document.getElementById('emojiDisplay').innerText = ''; }
+
+    // --- TOTP ---
+    setInterval(() => {
+        const sec = new Date().getSeconds();
+        const remain = 30 - (sec % 30);
+        if(document.getElementById('totpFill')) document.getElementById('totpFill').style.width = (remain / 30 * 100) + "%";
+        if(remain === 30 && document.getElementById('totpCode')) document.getElementById('totpCode').innerText = Math.floor(100000 + Math.random() * 900000);
+    }, 1000);
+
+    // --- RHYTHM ---
+    let rhythmTimes = [];
+    function recordRhythm() {
+        rhythmTimes.push(Date.now());
+        const pad = document.getElementById('rhythmPad'); pad.style.background = "var(--primary)";
+        setTimeout(() => pad.style.background = "transparent", 100);
+        document.getElementById('rhythmStatus').innerText = `Beats: ${rhythmTimes.length}`;
+    }
+
+    // --- HOTSPOT ---
+    const canvas = document.getElementById('hotspot-canvas'); const ctx = canvas.getContext('2d');
+    let spots = [];
+    document.getElementById('imgUpload').onchange = (e) => {
+        const img = new Image(); img.onload = () => { canvas.width = img.width; canvas.height = img.height; ctx.drawImage(img,0,0); };
+        img.src = URL.createObjectURL(e.target.files[0]);
+    };
+    canvas.onclick = (e) => {
+        if(spots.length < 3) {
+            const rect = canvas.getBoundingClientRect();
+            spots.push({ x: e.clientX-rect.left, y: e.clientY-rect.top });
+            ctx.fillStyle = "red"; ctx.beginPath(); ctx.arc(e.clientX-rect.left, e.clientY-rect.top, 5, 0, Math.PI*2); ctx.fill();
+            document.getElementById('hotspotPoints').innerText = `Points: ${spots.length}/3`;
+        }
+    };
+
+    // --- ENHANCED HISTORY SYSTEM ---
+    function saveToHistory(type, val, email, metadata = "") {
+        if(!validateEmail(email)) return alert("Valid Email Required for Security Backup");
+        if(!val || val.length === 0) return alert("Nothing to save!");
+
+        let history = JSON.parse(localStorage.getItem('sentinel_history') || '[]');
+        history.push({ 
+            type, 
+            val, 
+            email, 
+            metadata,
+            date: new Date().toLocaleDateString(),
+            time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+        });
+        
+        localStorage.setItem('sentinel_history', JSON.stringify(history));
+        displayHistory(); 
+        alert(`${type} log entry created successfully!`);
+    }
+
+    function displayHistory() {
+        const list = document.getElementById('historyList');
+        const history = JSON.parse(localStorage.getItem('sentinel_history') || '[]');
+        
+        if (history.length === 0) {
+            list.innerHTML = `<p style="text-align:center; color:#94a3b8; font-size:0.8rem;">No activity logs found.</p>`;
+            return;
+        }
+
+        list.innerHTML = "";
+        history.reverse().forEach(item => {
+            list.innerHTML += `
+                <div class="history-item">
+                    <span class="timestamp">${item.date} ${item.time}</span>
+                    <span class="type-tag">${item.type}</span>
+                    <div style="font-weight:700; margin-bottom:4px; font-size:0.75rem;">Email: ${item.email}</div>
+                    ${item.metadata ? `<div style="font-size:0.7rem; color:#64748b; margin-bottom:5px;">Note: ${item.metadata}</div>` : ''}
+                    <div class="content-box">${item.val}</div>
+                </div>`;
+        });
+    }
+
+    // --- LOG TRIGGER FUNCTIONS ---
+    function savePassword() { 
+        saveToHistory("Password", input.value, document.getElementById('userEmail').value, document.getElementById('userNote').value); 
+    }
+    function savePattern() { 
+        saveToHistory("Pattern", `Sequence: ${pattern.join(' → ')}`, document.getElementById('patternEmail').value); 
+    }
+    function savePhrase() { 
+        saveToHistory("Phrase", document.getElementById('phraseInput').value, document.getElementById('phraseEmail').value); 
+    }
+    function saveEmoji() { 
+        saveToHistory("Emoji", emojiSeq.join(' '), document.getElementById('emojiEmail').value); 
+    }
+    function saveRhythm() { 
+        saveToHistory("Rhythm", `${rhythmTimes.length} rhythm beats`, document.getElementById('rhythmEmail').value); 
+    }
+    function saveHotspot() { 
+        const coords = spots.map(s => `(${Math.round(s.x)}, ${Math.round(s.y)})`).join(', ');
+        saveToHistory("Hotspot", coords, document.getElementById('hotspotEmail').value); 
+    }
+
+    function toggleHistory() { document.getElementById('historyPanel').classList.toggle('open'); }
+    function clearHistory() { if(confirm("Permanently wipe all security logs?")) { localStorage.removeItem('sentinel_history'); displayHistory(); } }
+    
+    window.onload = () => {
+        displayHistory();
+        document.getElementById('securityPopup').classList.add('show');
+    };
+</script>
+</body>
+</html>
